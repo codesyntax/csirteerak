@@ -1,0 +1,14 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>Irteerak</h1>
+
+<ul>
+{% for ebentua in ebentuak %}
+<li><a href="{% url csirteerak_irteera_item ebentua.id %}">{{ ebentua }}</a> 
+{% endfor %}
+</ul>
+</body>
+</html>

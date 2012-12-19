@@ -1,0 +1,35 @@
+{% load pages_tags %}
+<html>
+<head>
+</head>
+<body>
+<h1>Erosketa saskia</h1>
+<form action="{% url csirteerak_update_cart%}" name="formularioa" method="post">
+{% csrf_token %}
+<table class="erosketa">
+<tr>
+<th>kontzeptua</th>
+<th>Helduak</th> <th>prezioa</th>
+<th>Lekuak libre</th>
+</tr>
+{% for item in cart_items %}
+<tr><td><strong>{{item.irteera.begin|date:"F j, Y"}} - {{item.irteera.begin|date:"H:i"}}/{{item.irteera.end|date:"H:i"}} - 
+{% show_content item.irteera.irteera.page "title" LANGUAGE_CODE  %}</strong></td>
+<td><input type="text" size="2" name="item_{{item.id}}_quantity" width="20" value="{{item.quantity}}" onChange="total()"></td>
+<td><input type="hidden" name="item_{{item.id}}_price" value="{{item.irteera.irteera.prezio_orokorra}}">{{item.irteera.irteera.prezio_orokorra}}</td>
+<td>{{item.irteera.getLibreak}}</td>
+</tr>
+{%endfor%}
+<tr class="total">
+<td>Total</td>
+<td colspan="4"><div id="prezio_totala">{{total}}</div></td>
+<td></td>
+</tr>
+</table>
+<input class="button" type="submit" value="Eguneratu">
+<input class="button" type="button" value="Hustu saskia" onClick="location.href='{%url csirteerak_empty_cart%}'">
+<a href="{%url csirteerak_checkout_index%}">Checkout</a>
+</form>
+
+</body>
+</html>

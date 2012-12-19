@@ -4,8 +4,6 @@ from django.conf import settings
 from models import Order
 from django.forms.util import ValidationError
 
-PAYMENT_METHODS=getattr(settings, 'CSIRTEERAK_PAYMENT_METHODS',((1, 'Paypal'),(2,'Credit card'),(3,'Transfer')))
-
 STATES=getattr(settings, 'CSIRTEERAK_PAYMENT_METHODS',(('-','-'),))
 
 
@@ -17,16 +15,7 @@ class CheckOutForm(ModelForm):
     city = forms.CharField(max_length=50)
     state =forms.TypedChoiceField(choices=STATES)
     certify=forms.CheckboxInput() 
-    email_send=forms.CheckboxInput()
-    payment_method = forms.TypedChoiceField(choices=PAYMENT_METHODS)
     
-    def clean_phone(self):
-        telefonoa = self.clean().get('phone','')
-        if telefonoa.startswith('6') or telefonoa.startswith('+'):
-           return telefonoa           
-        else:
-           raise ValidationError("Telefono mugikorra sartu mesedez / Introduzca un telefono movil por favor")
- 
     def clean_certify(self):
         certify = self.clean().get('certify','')
         if not certify:
@@ -36,4 +25,4 @@ class CheckOutForm(ModelForm):
 
     class Meta:
         model = Order
-        exclude = ('payment_method','status','order_number','user') 
+        exclude = ('status','order_number') 

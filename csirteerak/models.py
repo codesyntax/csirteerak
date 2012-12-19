@@ -3,13 +3,11 @@ from pages.models import Page
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
-from django.db.models.signals import post_save
 import datetime
 
 
-PAYMENT_METHODS=((2,'Credit card'),(3,'Transfer'),)
+PAYMENT_METHODS=getattr(settings, 'CSIRTEERAK_PAYMENT_METHODS',((1, 'Paypal'),(2,'Credit card'),(3,'Transfer')))
 
 BAIEZ_CHOICES = ((1,'Bai'),(0,'Ez'))
 
@@ -75,22 +73,7 @@ class Agenda(models.Model):
 
     def __unicode__(self):
         return '%s. %s:%s: %s'%(self.begin.date(), self.begin.hour,self.begin.minute,self.irteera.page.title())
-
    
-class Event(models.Model):
-    title = models.CharField(max_length=32)
-    description = models.TextField()
-    begin =models.DateTimeField(null=True,blank=True)
-    end =models.DateTimeField(null=True,blank=True)
-    published = models.BooleanField("Argitaratuta?",choices=BAIEZ_CHOICES, default=0)
-
-    def getTitle(self):
-        return self.title
-
-    class Meta:
-        verbose_name = 'Ebentuen agenda'
-        verbose_name_plural = 'Ebentuen agenda'      
-
 
 class Order(models.Model):
 
@@ -110,8 +93,7 @@ class Order(models.Model):
     order_number = models.CharField(max_length=100,null=True,blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=STATUS, default=PAYMENT_PENDING)
-    payment_method = models.IntegerField(choices=PAYMENT_METHODS, default=0)
-    old_payment_method = models.IntegerField(choices=PAYMENT_METHODS, null=True, blank=True, default=0)
+    payment_method = models.IntegerField(choices=PAYMENT_METHODS)
     name = models.CharField(max_length=50)
     lastname = models.CharField(max_length=100)
     phone = models.CharField(max_length=20)
@@ -119,9 +101,7 @@ class Order(models.Model):
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     certify = models.BooleanField("Ziurtatzen dut...")
-    user = models.ForeignKey(User,null=True,blank=True)
     oharrak = models.TextField(null=True,blank=True)
-    email_send = models.BooleanField("Ziurtatzen dut...")
     
 
     def get_order_items(self):
@@ -130,7 +110,7 @@ class Order(models.Model):
     def get_total(self):
         subtotal = 0
         for item in self.get_order_items():
-            subtotal +=  (item.price*item.quantity) + (item.price_murriztua*item.quantity_murriztua)
+            subtotal +=  item.price*item.quantity
         return subtotal
 
     def set_order_number(self):
@@ -179,14 +159,11 @@ def order_presave(sender, instance,**kwargs):
          instance.order_number=instance.create_order_number()      
       return True
 
-def order_postsave_send_mail(sender, created, instance,**kwargs):
-    if instance.status==2 and instance.payment_method==3:
-        instance.erosketa_transf_ok_mail()
-    return True
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order)
+    product = models.ForeignKey(Agenda)
     quantity = models.IntegerField(default=1)
     price = models.DecimalField(max_digits=9,decimal_places=2,null=True,blank=True)
        
@@ -199,18 +176,6 @@ class OrderItem(models.Model):
        
     def disponibilitatea(self):
         return self.product.disponibilitatea()
-
-    def getTxartelarekin(self):
-        if self.order.payment_method==2:
-            return self.item_total()
-        else:
-            return '0'            
-
-    def getTransferentziarekin(self):
-        if self.order.payment_method==3:
-            return self.item_total()
-        else:
-            return '0'   
 
     def __unicode__(self):
         try:
@@ -225,7 +190,6 @@ def admin_gorde(sender, instance, **kwargs):
 
 pre_save.connect(admin_gorde,sender=OrderItem)    
 pre_save.connect(order_presave,sender=Order)
-post_save.connect(order_postsave_send_mail,sender=Order)        
 
 class CartItem(models.Model):
     cart_id = models.CharField(max_length=100)

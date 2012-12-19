@@ -1,0 +1,31 @@
+Dependentziak betetzeko
+
+csirteerak-ek django-cms-pages erailtzen du, hori dela eta setings-etan honako hauek gehitu behar dira
+
+PAGE_DEFAULT_TEMPLATE = 'default_template.html'
+PAGE_LANGUAGES = (('eu','Euskara'),)
+
+INSTALLED_APPS-en gehitu 'pages'
+
+zure proiektuko urls.py fitxategian gehitu ('nahidentokia', include(pages.urls))
+
+csirteerak instalatzeko
+
+INSTALLED_APPSen gehit 'csirteerak'
+
+zure proiektuko urls.py fitxategian gehitu ('nahidenurla', include(csirteerak.urls))
+
+
+
+Gomendagarria da settings hauek zure proiekturako egokitzea
+
+CSIRTEERAK_PAYMENT_PROCESS_NAME => zein den ordainketa pasarelarako datu bidalketa egiten duen url-aren izena. Ez bada zehazten ez da pasarelarik erabiliko eta ordainketak offline kudeatu beharko dira
+
+CSIRTEERAK_PAYMENT_METHOD => Zeintzuk diren onartutako ordainketa moduak. 
+			  Zehaztu ezean: ((1, 'Paypal'),(2,'Credit card'),(3,'Transfer'))
+CSIRTEERAK_STATE => Zein estatutatik egiten den eskera,
+		 Zehaztu ezean: (('-','-'),)
+
+CSIRTEERAK_ORDER_ID_SESSION_KEY => default csirteerak_session_key
+				Erosketa saskiko itemak gordetzeko erabiliko den sesio gakoaren izena.
+				Zehaztu ezean: csirteerak_session_key

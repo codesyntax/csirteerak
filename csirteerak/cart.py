@@ -6,8 +6,7 @@ import decimal
 
 from django.contrib import messages
 
-from irteerak.cart.models import CartItem
-from irteerak.agenda.models import Agenda
+from csirteerak.models import Agenda,  CartItem
 
 CART_ID_SESSION_KEY = 'cart_id'
 
@@ -56,22 +55,17 @@ def add_to_cart(request, agenda_id):
         else:
             messages.info(request,'No hemos podido añadir su pedido')
 
-def update_cart(request, item_id, quantity, quantity_murriztua):
+def update_cart(request, item_id, quantity):
     cart_item = get_cart_item(request, item_id)
     try:
         quantity = int(quantity)
-        quantity_murriztua=int(quantity_murriztua)
     except:
-        messages.info(request,'La cantidad no es correcta')
         return 0
 
     
     if not quantity:
         quantity = 0
-    if not quantity_murriztua:
-       quantity_murriztua=0    
     cart_item.quantity = quantity
-    cart_item.quantity_murriztua = quantity_murriztua
     cart_item.save()
 
 

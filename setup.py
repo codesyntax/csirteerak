@@ -20,6 +20,7 @@ setup(name='csirteerak',
       install_requires=[
           # -*- Extra requirements: -*-
           'django-page-cms',
+          'django-authority',
       ],
       entry_points="""
       # -*- Entry points: -*-
